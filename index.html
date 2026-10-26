@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Parking App Admin</title>
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAFeElEQVR42u2c34tUZRjHP+97zszszM7stOsKW0iWmF1IhXRVFEQS3YQXeaFUdOOFEGwXeRHUnURBoBHaRdIfsEFqpUEEQj8ViSAJUVQqf6DmqrvuzM7szDnnfbs4c2ZXd3Z2dUfP2fH5wrsss7uHmfdz3uf5Ps/7nlWrN1+0iGKTlikQAAJAJAAEgEgACACRABAAIgEgAEQCQACIBIAAEAkAASASAAJAJAAEgEgACACRAOg6uXG/AUeDUp25lm1+AWvDb60VAG11Y9LiB52ZJdX4opXCdSCdUqQcUBqMSSaMWAEYA5vX5xgsaqxd/ErwA5icMlyfMFy6FnDxasDouKHuWbIZRTajsBaMFQAoBYGxDG/Ms+qhu/M2rt4wnDzr8dOfNX74fYqT5zx60iGIIEgGABXX4VyloO5Z9n+4nCdWpTAGtO5MCFLMvla1Zvn21yq79pU5fd6jv6AJjLggHA2u05nhOOH1osm3FgITjmxGsWl9ju8+HuS1l3oZK5lFAxcbuoBV5uhwWCAIoNir+WT4Ad7ZVGC8ZHC0AJjfXtr5h2nc7X4QJvdW4clxGqsigHdf7+ONl8OV4DgCYN47eb6h1XQ403oaTMtr6RDY9i1FVq9IUa3ZjtUiS64OaGdRtYbj/3i8t+cGPWnV1senXBjo0zy2wuX5JzOsW5Nurp5bJ1ercBX09iiGN+Z5+9Ox2JxRYgHYGYXaz8dq5HtUW/9uAWNsmHDTihef7uGjrUUeXOa0htBYJa88m2XnlyVGxw0p994Xa27Sw4+roZBT9M4DIIzzCqXCSTx4uMrZyz57PxikvzC70AvrEMhnFc+sTTNyqBJa03sMIPE5wDbC0UJGlIQDA0MDmmNnPHbvK6NU6+o36hetW5PGWGLJA11rQ+s+FPOa749WqdZs04rOSsjAI0MuKVfF0qLoWgDWho7oypjhwmjQfG1W5Qz0F3Qs8f++KMQ831KumpszewsH5Sg1588FwGI+oFak3PbB3fMhsHZ6SQiADtz9jdZDIacYGnCaK6KV1R0rGTxPknCH73yo1i1rH00xWNQtXU7kgv6+6OMFFi0AOqOoweb7lq0b8i0TcFQRK+CPU/VmYSaVcItEGrWb57OJFrAGKlOWSs3y/pt9vLAugzHM6npaG/aEJiYNR4/XyWV0LDY08QA8H0bHDdXsAiphFbYhHl+ZYvjVPBuey8650WNM2B09eGSKc//5DBS19IJunUyAlUMO27cU5/bpKrz1XUcxWNSsedjlqdVpdKP6bTX5UVtiqm75/JtyuFcc0+5YYgFECXHFcodtmwu3/fdBi7ATyQ9C779jpMSJfz2WFTV+IADmrGgXunermO73O3rua6Vc+PqXKp/tL9NfiG/yl1QSXizEKOa7Dnz1Y4Vtu8fJZRRxn1BJPIA2HYS2vxx5/MiWOg6UKoYdIyX2HJgkl1GxWc8lB0DdwS/PLLquTRgO/Fbli4OTnDrv0Z/XiTm22FU5wFpL3YdyxXDpmuHEWY8jx2sc/qvOuSs+2YxiWV+8MX/JAIhczLEzHm/tvN48VthOxkKtbilXLRMV09xsz2U0A30a09iwSZISvwKqdcvpC/4CtySjs0CKTCo8gkh0ZCVI5udLPADdqG6z6YXtWNmZoSsg8VoSSdjY6dFtkidkBIAAEAkAASASAAJAJADuP8VeiM18qkXbm1+/nUacALhDFXvDh6q5ZdMl2oQp9qrEP+2+JAFYGzbNdu0tt3xQ29iwD3T5ekA61b0QYl0BWsPIoUrbf1XgOopCTgDc1RCk2hzK7PY8kIgkLDZUJAAEgEgACACRABAAIgEgAEQCQACIBIAAEAkAASASAAJAJAAEgEgACACRABAAIgHQTfofiLQ+YoKe1VkAAAAASUVORK5CYII=">
+<style>
+:root{--bg:#F7F5EF;--card:#FFFFFF;--ink:#14213D;--mute:#4A5163;--line:#E3DED2;--line2:#C9C3B5;--track:#E9E5DA;--brand:#2458E6;--brand-ink:#FFFFFF;--soft:#EEF2FC;--bad:#B42318;--good:#1B7F3B;--gold:#F5A623;--goldsoft:#FDF1DC;--chip:#E9E5DA}
+*{box-sizing:border-box}
+a{color:var(--brand)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.35 Roboto,system-ui,-apple-system,Segoe UI,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:12px;padding:10px 16px;max-width:1000px;margin:0 auto}
+.bar h1{font-size:20px;font-weight:600;margin:0;flex:1;display:flex;align-items:center;gap:10px}
+.bar h1 img{width:30px;height:30px;border-radius:8px}
+nav{display:flex;gap:4px;overflow-x:auto;padding:0 12px 8px;max-width:1000px;margin:0 auto}
+nav button{border:0;background:none;color:var(--mute);padding:8px 12px;border-radius:8px;font:inherit;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--soft);color:var(--brand);font-weight:600}
+nav .n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:var(--bad);color:#fff;font-size:12px;text-align:center}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:17px;font-weight:600;margin:0 0 4px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.tile b{display:block;font-size:26px;font-weight:800}
+.tile span{color:var(--mute);font-size:13px}
+.mute{color:var(--mute)}
+.chip{display:inline-block;background:var(--chip);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.chip.bad{background:var(--bad);color:#fff}
+.chip.good{background:var(--good);color:#fff}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:2px 12px;margin:8px 0}
+.kv dt{color:var(--mute)}.kv dd{margin:0;word-break:break-word}
+@media (max-width:520px){.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+button.btn{font:inherit;font-weight:600;border:1.5px solid var(--line2);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:14px;cursor:pointer}
+button.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+button.btn.danger{border-color:var(--bad);color:var(--bad)}
+button.btn:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border:1.5px solid var(--brand);padding:11.5px 13.5px}
+label{display:block;margin:8px 0 4px;color:var(--mute);font-size:13px}
+.photos{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.photos a{display:block}
+.photos img{width:120px;height:90px;object-fit:cover;border-radius:12px;border:1px solid var(--line);background:#E1E6EF}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:500}
+.scroll{overflow-x:auto}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:92vw;padding:12px 18px;border-radius:14px;background:var(--ink);color:#fff;z-index:20;box-shadow:0 4px 18px rgba(0,0,0,.3)}
+.toast.err{background:var(--bad);color:#fff}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);width:min(440px,92vw);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.login{max-width:380px;margin:12vh auto;padding:0 16px}
+.sep{height:1px;background:var(--line);margin:12px 0}
+.empty{text-align:center;color:var(--mute);padding:36px 0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+// Same public values as the app. The key is public by design: safety comes from the database,
+// where every admin function checks is_admin() first.
+const SUPABASE_URL = 'https://tdeyxtvkbzgupfuhkvrr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_M43nCALDDlH9j_xPQ2uv3A_UHYEpXLg';
+const IDLE_MINUTES = 30;
+const LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAFeElEQVR42u2c34tUZRjHP+97zszszM7stOsKW0iWmF1IhXRVFEQS3YQXeaFUdOOFEGwXeRHUnURBoBHaRdIfsEFqpUEEQj8ViSAJUVQqf6DmqrvuzM7szDnnfbs4c2ZXd3Z2dUfP2fH5wrsss7uHmfdz3uf5Ps/7nlWrN1+0iGKTlikQAAJAJAAEgEgACACRABAAIgEgAEQCQACIBIAAEAkAASASAAJAJAAEgEgACACRAOg6uXG/AUeDUp25lm1+AWvDb60VAG11Y9LiB52ZJdX4opXCdSCdUqQcUBqMSSaMWAEYA5vX5xgsaqxd/ErwA5icMlyfMFy6FnDxasDouKHuWbIZRTajsBaMFQAoBYGxDG/Ms+qhu/M2rt4wnDzr8dOfNX74fYqT5zx60iGIIEgGABXX4VyloO5Z9n+4nCdWpTAGtO5MCFLMvla1Zvn21yq79pU5fd6jv6AJjLggHA2u05nhOOH1osm3FgITjmxGsWl9ju8+HuS1l3oZK5lFAxcbuoBV5uhwWCAIoNir+WT4Ad7ZVGC8ZHC0AJjfXtr5h2nc7X4QJvdW4clxGqsigHdf7+ONl8OV4DgCYN47eb6h1XQ403oaTMtr6RDY9i1FVq9IUa3ZjtUiS64OaGdRtYbj/3i8t+cGPWnV1senXBjo0zy2wuX5JzOsW5Nurp5bJ1ercBX09iiGN+Z5+9Ox2JxRYgHYGYXaz8dq5HtUW/9uAWNsmHDTihef7uGjrUUeXOa0htBYJa88m2XnlyVGxw0p994Xa27Sw4+roZBT9M4DIIzzCqXCSTx4uMrZyz57PxikvzC70AvrEMhnFc+sTTNyqBJa03sMIPE5wDbC0UJGlIQDA0MDmmNnPHbvK6NU6+o36hetW5PGWGLJA11rQ+s+FPOa749WqdZs04rOSsjAI0MuKVfF0qLoWgDWho7oypjhwmjQfG1W5Qz0F3Qs8f++KMQ831KumpszewsH5Sg1588FwGI+oFak3PbB3fMhsHZ6SQiADtz9jdZDIacYGnCaK6KV1R0rGTxPknCH73yo1i1rH00xWNQtXU7kgv6+6OMFFi0AOqOoweb7lq0b8i0TcFQRK+CPU/VmYSaVcItEGrWb57OJFrAGKlOWSs3y/pt9vLAugzHM6npaG/aEJiYNR4/XyWV0LDY08QA8H0bHDdXsAiphFbYhHl+ZYvjVPBuey8650WNM2B09eGSKc//5DBS19IJunUyAlUMO27cU5/bpKrz1XUcxWNSsedjlqdVpdKP6bTX5UVtiqm75/JtyuFcc0+5YYgFECXHFcodtmwu3/fdBi7ATyQ9C779jpMSJfz2WFTV+IADmrGgXunermO73O3rua6Vc+PqXKp/tL9NfiG/yl1QSXizEKOa7Dnz1Y4Vtu8fJZRRxn1BJPIA2HYS2vxx5/MiWOg6UKoYdIyX2HJgkl1GxWc8lB0DdwS/PLLquTRgO/Fbli4OTnDrv0Z/XiTm22FU5wFpL3YdyxXDpmuHEWY8jx2sc/qvOuSs+2YxiWV+8MX/JAIhczLEzHm/tvN48VthOxkKtbilXLRMV09xsz2U0A30a09iwSZISvwKqdcvpC/4CtySjs0CKTCo8gkh0ZCVI5udLPADdqG6z6YXtWNmZoSsg8VoSSdjY6dFtkidkBIAAEAkAASASAAJAJADuP8VeiM18qkXbm1+/nUacALhDFXvDh6q5ZdMl2oQp9qrEP+2+JAFYGzbNdu0tt3xQ29iwD3T5ekA61b0QYl0BWsPIoUrbf1XgOopCTgDc1RCk2hzK7PY8kIgkLDZUJAAEgEgACACRABAAIgEgAEQCQACIBIAAEAkAASASAAJAJAAEgEgACACRABAAIgHQTfofiLQ+YoKe1VkAAAAASUVORK5CYII='; // the app icon
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+const app = document.getElementById('app');
+
+// ---------- tiny helpers. Text is ALWAYS added as text, never as HTML, so user-written text cannot run code. ----------
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (v === false || v == null) continue;
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, '');
+    else e.setAttribute(k, v);
+  }
+  for (const c of kids.flat(Infinity)) {
+    if (c == null || c === false) continue;
+    e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  return e;
+}
+const when = (t) => t ? new Date(t).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) : '';
+const day = (t) => t ? new Date(t + 'T00:00:00').toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '';
+const money = (n) => n == null ? null : '₹' + Number(n).toLocaleString('en-IN');
+const VEHICLES = { two_wheeler: 'Two-wheeler', car: 'Car', auto: 'Auto', van_tempo: 'Van / tempo', truck_bus: 'Truck / bus' };
+const KINDS = { independent_house: 'Independent house', apartment: 'Apartment', open_plot: 'Open plot', commercial: 'Commercial' };
+const RTYPES = { fake_listing: 'Fake listing', no_show: 'No show', damage: 'Damage', behaviour: 'Behaviour', other: 'Other' };
+
+function toast(msg, bad) {
+  document.querySelectorAll('.toast').forEach((t) => t.remove());
+  const t = h('div', { class: 'toast' + (bad ? ' err' : '') }, msg);
+  document.body.append(t);
+  setTimeout(() => t.remove(), bad ? 7000 : 3000);
+}
+
+let kicked = false;
+async function rpc(name, args) {
+  const { data, error } = await sb.rpc(name, args || {});
+  if (error) {
+    if (error.code === '42501') { await logout('This login is not an admin.'); throw new Error('Not allowed'); }
+    if (/jwt|token/i.test(error.message) && /expired|invalid/i.test(error.message)) { await logout('Please log in again.'); throw new Error('Logged out'); }
+    throw new Error(error.message || 'Something went wrong');
+  }
+  return data;
+}
+
+// Ask for a written reason (and optionally a method). Resolves null if cancelled.
+function ask({ title, label, min = 3, ok = 'Confirm', danger = false, method = false, hint = '' }) {
+  return new Promise((resolve) => {
+    const note = h('textarea', { rows: 4, maxlength: 500 });
+    const sel = method ? h('select', {}, h('option', { value: 'call' }, 'Phone call'), h('option', { value: 'visit' }, 'Visit'), h('option', { value: 'other' }, 'Other')) : null;
+    const err = h('div', { class: 'mute', style: 'color:var(--bad);min-height:20px' });
+    const dlg = h('dialog');
+    const done = (v) => { dlg.close(); dlg.remove(); resolve(v); };
+    const okBtn = h('button', { class: 'btn ' + (danger ? 'danger' : 'primary'), onclick: () => {
+      const v = note.value.trim();
+      if (v.length < min) { err.textContent = 'Please write at least ' + min + ' characters.'; return; }
+      done({ note: v, method: sel ? sel.value : null });
+    } }, ok);
+    dlg.append(...[h('h2', { style: 'margin-top:0' }, title),
+      hint ? h('p', { class: 'mute' }, hint) : null,
+      sel ? [h('label', {}, 'Method'), sel] : null,
+      h('label', {}, label), note, err,
+      h('div', { class: 'row', style: 'justify-content:flex-end;margin-top:10px' }, h('button', { class: 'btn', onclick: () => done(null) }, 'Cancel'), okBtn)].flat(Infinity).filter(Boolean));
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); done(null); });
+    document.body.append(dlg);
+    dlg.showModal();
+    note.focus();
+  });
+}
+
+// Run an action, show the result, refresh the screen.
+async function act(btn, fn, okMsg, after) {
+  btn.disabled = true;
+  try { await fn(); toast(okMsg); await after(); }
+  catch (e) { toast(e.message, true); btn.disabled = false; }
+}
+
+// ---------- login ----------
+let idleTimer = null;
+function resetIdle() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => logout('Logged out after ' + IDLE_MINUTES + ' minutes without use.'), IDLE_MINUTES * 60000);
+}
+['click', 'keydown', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => { if (idleTimer) resetIdle(); }, { passive: true }));
+
+async function logout(msg) {
+  clearTimeout(idleTimer); idleTimer = null;
+  try { await sb.auth.signOut(); } catch (_) {}
+  showLogin(msg);
+}
+
+function showLogin(msg) {
+  const phone = h('input', { type: 'tel', inputmode: 'numeric', placeholder: '10-digit mobile number', autocomplete: 'tel-national', maxlength: 14 });
+  const code = h('input', { type: 'text', inputmode: 'numeric', placeholder: '6-digit code', maxlength: 6, autocomplete: 'one-time-code' });
+  const info = h('div', { class: 'mute', style: 'min-height:22px;margin:8px 0' }, msg || '');
+  const send = h('button', { class: 'btn primary', style: 'width:100%;margin-top:12px' }, 'Send code');
+  const verify = h('button', { class: 'btn primary', style: 'width:100%;margin-top:12px', hidden: true }, 'Log in');
+  let full = '';
+  const say = (m, bad) => { info.textContent = m; info.style.color = bad ? 'var(--bad)' : ''; };
+  send.onclick = async () => {
+    const d = phone.value.replace(/\D/g, '').replace(/^(91|0)(?=\d{10}$)/, '');
+    if (!/^[6-9]\d{9}$/.test(d)) return say('Enter a valid 10-digit mobile number.', true);
+    full = '+91' + d;
+    send.disabled = true; say('Sending…');
+    // shouldCreateUser: false = this page can never create an account.
+    const { error } = await sb.auth.signInWithOtp({ phone: full, options: { shouldCreateUser: false } });
+    send.disabled = false;
+    if (error) return say('Could not send the code. Is this number already registered in the app?', true);
+    say('Code sent. Enter it below.');
+    phone.disabled = true; send.hidden = true; code.hidden = false; verify.hidden = false; code.focus();
+  };
+  verify.onclick = async () => {
+    if (!/^\d{6}$/.test(code.value.trim())) return say('Enter the 6-digit code.', true);
+    verify.disabled = true; say('Checking…');
+    const { error } = await sb.auth.verifyOtp({ phone: full, token: code.value.trim(), type: 'sms' });
+    verify.disabled = false;
+    if (error) return say('That code did not work. Try again.', true);
+    start();
+  };
+  code.hidden = true;
+  app.replaceChildren(h('div', { class: 'login' },
+    h('div', { class: 'card' }, h('h1', { style: 'font-size:20px;margin-top:0;display:flex;align-items:center;gap:10px' }, h('img', { src: LOGO, alt: '', style: 'width:34px;height:34px;border-radius:9px' }), 'Parking App Admin'),
+      h('p', { class: 'mute' }, 'Log in with the phone number of your admin account.'),
+      h('label', {}, 'Mobile number'), phone, code, info, send, verify)));
+}
+
+// ---------- shell ----------
+const TABS = [['overview', 'Overview'], ['review', 'Review'], ['reports', 'Reports'], ['users', 'Users'], ['waiting', 'Waiting list'], ['log', 'Log']];
+let tab = 'overview';
+let counts = { pending_spaces: 0, open_reports: 0 };
+let view;
+
+function shell() {
+  const nav = h('nav');
+  for (const [id, name] of TABS) {
+    const n = id === 'review' ? counts.pending_spaces : id === 'reports' ? counts.open_reports : 0;
+    nav.append(h('button', { class: id === tab ? 'on' : '', onclick: () => { tab = id; shell(); load(); } }, name, n > 0 ? h('span', { class: 'n' }, n) : null));
+  }
+  view = h('main');
+  app.replaceChildren(
+    h('header', {}, h('div', { class: 'bar' }, h('h1', {}, h('img', { src: LOGO, alt: '' }), 'Parking App Admin'),
+      h('button', { class: 'btn', onclick: () => load() }, 'Refresh'),
+      h('button', { class: 'btn', onclick: () => logout('Logged out.') }, 'Log out')), nav),
+    view);
+}
+
+async function refreshCounts() {
+  try {
+    const o = await rpc('admin_overview');
+    counts = o;
+    const nav = document.querySelector('nav');
+    if (nav) {
+      [...nav.children].forEach((b, i) => {
+        const id = TABS[i][0];
+        const n = id === 'review' ? o.pending_spaces : id === 'reports' ? o.open_reports : 0;
+        b.querySelector('.n')?.remove();
+        if (n > 0) b.append(h('span', { class: 'n' }, n));
+      });
+    }
+    return o;
+  } catch (e) { throw e; }
+}
+
+async function load() {
+  view.replaceChildren(h('div', { class: 'empty' }, 'Loading…'));
+  try {
+    const o = await refreshCounts();
+    const fn = { overview: () => viewOverview(o), review: viewReview, reports: () => viewReports('open'), users: viewUsers, waiting: viewWaiting, log: viewLog }[tab];
+    await fn();
+  } catch (e) {
+    if (e.message === 'Not allowed' || e.message === 'Logged out') return;
+    view.replaceChildren(h('div', { class: 'card' }, h('b', {}, 'Could not load. '), e.message, h('div', { style: 'margin-top:10px' }, h('button', { class: 'btn', onclick: load }, 'Try again'))));
+  }
+}
+
+const dl = (rows) => h('dl', { class: 'kv' }, rows.filter((r) => r[1] != null && r[1] !== '' && r[1] !== false).map(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]));
+const person = (p) => p ? [p.name || '(no name)', ' · ', p.phone || 'no phone', p.status === 'blocked' ? [' ', h('span', { class: 'chip bad' }, 'blocked')] : null] : 'none';
+
+// ---------- overview ----------
+function viewOverview(o) {
+  const tile = (n, label, to) => h('div', { class: 'tile', style: to ? 'cursor:pointer' : '', onclick: to ? () => { tab = to; shell(); load(); } : null }, h('b', {}, n == null ? '–' : n), h('span', {}, label));
+  view.replaceChildren(
+    h('div', { class: 'grid' },
+      tile(o.pending_spaces, 'Spaces to review', 'review'), tile(o.open_reports, 'Open reports', 'reports'),
+      tile(o.live_spaces, 'Live spaces'), tile(o.users, 'Users'), tile(o.blocked_users, 'Blocked users'),
+      tile(o.open_requests, 'Open requests'), tile(o.accepted_bookings, 'Accepted bookings'),
+      tile(o.accept_rate_pct == null ? null : o.accept_rate_pct + '%', 'Accept rate'),
+      tile(o.avg_reply_hours == null ? null : o.avg_reply_hours + ' h', 'Average reply time'), tile(o.waiting, 'People waiting', 'waiting')),
+    h('div', { class: 'card', style: 'margin-top:14px' }, h('h2', {}, 'Waiting list by area'),
+      o.waitlist_by_area.length ? h('div', { class: 'scroll' }, h('table', {}, h('thead', {}, h('tr', {}, ['Area', 'Waiting', 'Cab', 'Night only'].map((x) => h('th', {}, x)))),
+        h('tbody', {}, o.waitlist_by_area.map((a) => h('tr', {}, h('td', {}, a.area), h('td', {}, a.waiting), h('td', {}, a.cab), h('td', {}, a.night_only)))))) : h('div', { class: 'mute' }, 'Nobody is waiting.')));
+}
+
+// ---------- review ----------
+const PHOTO_OK = /^[0-9a-f-]{36}\/[A-Za-z0-9._-]+$/;
+const photoUrl = (p) => SUPABASE_URL + '/storage/v1/object/public/space-photos/' + p.split('/').map(encodeURIComponent).join('/');
+function mapLink(loc) {
+  const m = /^POINT\((-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)\)$/.exec(loc || '');
+  if (!m) return null;
+  return h('a', { href: `https://www.openstreetmap.org/?mlat=${m[2]}&mlon=${m[1]}#map=18/${m[2]}/${m[1]}`, target: '_blank', rel: 'noopener noreferrer' }, 'Open map point');
+}
+function offerText(o) {
+  const prices = [o.price_day != null ? money(o.price_day) + '/day' : null, o.price_week != null ? money(o.price_week) + '/week' : null, o.price_month != null ? money(o.price_month) + '/month' : null].filter(Boolean).join(', ');
+  return [VEHICLES[o.vehicle_type] || o.vehicle_type, o.max_car_size ? (o.max_car_size === 'suv_muv' ? ' (SUV ok)' : ' (hatch/sedan)') : '', o.covered ? ', covered' : ', open', ` · ${o.slot_count} slot${o.slot_count > 1 ? 's' : ''} · `, prices, o.active ? '' : ' · OFF'].join('');
+}
+
+async function viewReview() {
+  const list = await rpc('admin_pending_spaces');
+  if (!list.length) return view.replaceChildren(h('div', { class: 'empty' }, 'Nothing to review.'));
+  view.replaceChildren(...list.map(reviewCard));
+}
+
+function reviewCard(s) {
+  const flags = [s.gated && 'Gated', s.cctv && 'CCTV', s.guard && 'Guard', s.lights && 'Lights', s.access_24x7 ? '24x7 access' : (s.access_from ? `Access ${s.access_from.slice(0, 5)}–${s.access_to.slice(0, 5)}` : null)].filter(Boolean);
+  const photos = h('div', { class: 'photos' }, (s.photos || []).filter((p) => PHOTO_OK.test(p)).map((p) =>
+    h('a', { href: photoUrl(p), target: '_blank', rel: 'noopener noreferrer' }, h('img', { src: photoUrl(p), alt: 'Space photo', loading: 'lazy' }))));
+  const reviewed = (s.reviews || []).length > 0;
+  const logBtn = h('button', { class: 'btn' }, 'Log call / visit');
+  const approve = h('button', { class: 'btn primary', disabled: !reviewed, title: reviewed ? '' : 'Log your call or visit first' }, 'Approve');
+  const reject = h('button', { class: 'btn danger' }, 'Reject…');
+  const reload = async () => { await refreshCounts(); await viewReview(); };
+  logBtn.onclick = async () => {
+    const r = await ask({ title: 'Log your call or visit', label: 'What did you check? (min 3 characters)', method: true, ok: 'Save' });
+    if (r) act(logBtn, () => rpc('admin_log_review', { p_space: s.id, p_method: r.method, p_notes: r.note }), 'Saved', reload);
+  };
+  approve.onclick = () => {
+    if (!confirm(`Approve "${s.title}"? It goes live in search and the owner gets a message.`)) return;
+    act(approve, () => rpc('admin_approve_space', { p_space: s.id }), 'Approved. The owner has been told.', reload);
+  };
+  reject.onclick = async () => {
+    const r = await ask({ title: 'Reject this space', label: 'Reason the owner will read (min 5 characters)', min: 5, ok: 'Reject', danger: true, hint: 'Say what to fix. The owner sees this text.' });
+    if (r) act(reject, () => rpc('admin_reject_space', { p_space: s.id, p_note: r.note }), 'Rejected. The owner has been told.', reload);
+  };
+  return h('div', { class: 'card' },
+    h('h2', {}, s.title), h('div', { class: 'mute' }, 'Sent ', when(s.created_at)),
+    dl([['Area', [s.area, s.locality && s.area !== s.locality ? ' · ' + s.locality : '']], ['Address', [s.address, s.pincode ? ' – ' + s.pincode : '']], ['Landmark', s.landmark],
+        ['Map', mapLink(s.location)], ['Type', KINDS[s.space_kind] || s.space_kind], ['Features', flags.join(', ')], ['Description', s.description],
+        ['Owner', person(s.owner)], ['Owner live spaces', s.owner ? s.owner.live_spaces : null],
+        ['Renters will call', [s.contact_name, s.contact_phone ? ' · ' + s.contact_phone : '']],
+        ['Permission ticked', s.permission_confirmed_at ? when(s.permission_confirmed_at) : h('span', { class: 'chip bad' }, 'No')],
+        ['Last rejection note', s.review_note]]),
+    h('b', {}, 'Photos (' + (s.photos || []).filter((p) => PHOTO_OK.test(p)).length + ')'), photos,
+    h('b', {}, 'Offers'), h('ul', {}, (s.offers || []).map((o) => h('li', {}, offerText(o)))),
+    h('b', {}, 'Your checks'),
+    (s.reviews || []).length ? h('ul', {}, s.reviews.map((r) => h('li', {}, `${when(r.at)} · ${r.method}: ${r.notes || ''}`))) : h('div', { class: 'mute' }, 'None yet. Call the owner or visit, then log it here.'),
+    h('div', { class: 'sep' }), h('div', { class: 'row' }, logBtn, approve, reject));
+}
+
+// ---------- reports ----------
+async function viewReports(status) {
+  const list = await rpc('admin_reports', { p_status: status });
+  const sw = h('div', { class: 'row', style: 'margin-bottom:12px' },
+    h('button', { class: 'btn' + (status === 'open' ? ' primary' : ''), onclick: () => viewReports('open').catch((e) => toast(e.message, true)) }, 'Open'),
+    h('button', { class: 'btn' + (status === 'resolved' ? ' primary' : ''), onclick: () => viewReports('resolved').catch((e) => toast(e.message, true)) }, 'Resolved (last 100)'));
+  view.replaceChildren(sw, ...(list.length ? list.map((r) => reportCard(r, status)) : [h('div', { class: 'empty' }, status === 'open' ? 'No open reports.' : 'Nothing resolved yet.')]));
+}
+
+function reportCard(r, status) {
+  const reload = async () => { await refreshCounts(); await viewReports(status); };
+  const resolve = h('button', { class: 'btn primary' }, 'Mark resolved…');
+  resolve.onclick = async () => {
+    const x = await ask({ title: 'Resolve this report', label: 'What did you do? (kept in your log; the reporter does not see it)', ok: 'Resolve' });
+    if (x) act(resolve, () => rpc('admin_resolve_report', { p_report: r.id, p_note: x.note }), 'Resolved', reload);
+  };
+  const buttons = [];
+  if (status === 'open') buttons.push(resolve);
+  if (r.other && r.other.status === 'active') buttons.push(blockButton(r.other, reload)); // admins are refused by the database
+  return h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('span', { class: 'chip' }, RTYPES[r.type] || r.type), h('span', { class: 'mute' }, when(r.created_at))),
+    h('p', { style: 'white-space:pre-wrap;margin:8px 0' }, r.text || '(no text)'),
+    dl([['Reported by', person(r.reporter)], ['Other side', person(r.other)],
+        ['Space', r.space ? [r.space.title, ' · ', r.space.status] : null],
+        ['Booking', r.booking ? [r.booking.status, ' · ', day(r.booking.start_date), ' to ', day(r.booking.end_date), ' · ', money(r.booking.quoted_price), r.booking.cancel_reason ? ' · cancelled: ' + r.booking.cancel_reason : ''] : null]]),
+    buttons.length ? h('div', { class: 'row' }, buttons) : null);
+}
+
+function blockButton(u, after) {
+  const b = h('button', { class: 'btn danger' }, 'Block ' + (u.name || u.phone || 'user') + '…');
+  b.onclick = async () => {
+    const x = await ask({ title: 'Block ' + (u.name || u.phone), label: 'Reason (kept in your log)', ok: 'Block', danger: true, hint: 'Their spaces disappear from search at once. They cannot request or list.' });
+    if (x) act(b, () => rpc('admin_set_user_status', { p_user: u.id, p_status: 'blocked', p_reason: x.note }), 'Blocked', after);
+  };
+  return b;
+}
+
+// ---------- users ----------
+async function viewUsers() {
+  const q = h('input', { type: 'search', placeholder: 'Part of a name or phone number (3+ characters)' });
+  const out = h('div');
+  const run = async () => {
+    const v = q.value.trim();
+    if (v.length < 3) return out.replaceChildren(h('div', { class: 'empty' }, 'Type at least 3 characters.'));
+    try {
+      const list = await rpc('admin_find_users', { p_q: v });
+      out.replaceChildren(...(list.length ? list.map((u) => userCard(u, run)) : [h('div', { class: 'empty' }, 'No one found.')]));
+    } catch (e) { toast(e.message, true); }
+  };
+  q.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  view.replaceChildren(h('div', { class: 'row', style: 'margin-bottom:12px' }, h('div', { style: 'flex:1;min-width:200px' }, q), h('button', { class: 'btn primary', onclick: run }, 'Search')), out);
+  q.focus();
+}
+
+function userCard(u, after) {
+  const reload = async () => { await refreshCounts(); await after(); };
+  let action = null;
+  if (!u.is_admin) {
+    if (u.status === 'active') action = blockButton(u, reload);
+    else {
+      action = h('button', { class: 'btn primary' }, 'Unblock…');
+      action.onclick = async () => {
+        const x = await ask({ title: 'Unblock ' + (u.name || u.phone), label: 'Reason (kept in your log)', ok: 'Unblock' });
+        if (x) act(action, () => rpc('admin_set_user_status', { p_user: u.id, p_status: 'active', p_reason: x.note }), 'Unblocked', reload);
+      };
+    }
+  }
+  return h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h2', { style: 'margin:0' }, u.name || '(no name)'), u.status === 'blocked' ? h('span', { class: 'chip bad' }, 'blocked') : h('span', { class: 'chip good' }, 'active'), u.is_admin ? h('span', { class: 'chip' }, 'admin') : null),
+    dl([['Phone', u.phone], ['Joined', when(u.created_at)], ['Roles', [u.is_renter ? 'Renter ' : '', u.is_owner ? 'Owner' : '']],
+        ['Spaces', `${u.spaces} (${u.live_spaces} live)`], ['Bookings as renter', u.bookings_as_renter], ['Reports made', u.reports_made]]),
+    action);
+}
+
+// ---------- waiting list ----------
+async function viewWaiting() {
+  const o = counts;
+  const sel = h('select', {}, h('option', { value: '' }, 'All areas'), (o.waitlist_by_area || []).filter((a) => a.area_id).map((a) => h('option', { value: a.area_id }, `${a.area} (${a.waiting})`)));
+  const out = h('div');
+  const run = async () => {
+    try {
+      const list = await rpc('admin_waitlist', { p_area: sel.value || null });
+      out.replaceChildren(...(list.length ? list.map((w) => h('div', { class: 'card' },
+        h('div', { class: 'row' }, h('b', {}, w.name || '(no name)'), h('span', { class: 'mute' }, w.phone || '')),
+        dl([['Area', [w.area, w.locality ? ' · ' + w.locality : '']], ['Vehicle', [VEHICLES[w.vehicle_type] || w.vehicle_type, w.use_type ? ' · ' + w.use_type : '']],
+            ['Wants', [w.covered_pref ? 'covered: ' + w.covered_pref : '', w.parking_time ? ' · time: ' + w.parking_time : '']],
+            ['Budget / month', w.budget_month ? money(w.budget_month) : null], ['Needed from', w.need_from ? day(w.need_from) : null], ['Note', w.note]]))) : [h('div', { class: 'empty' }, 'Nobody waiting here.')]));
+    } catch (e) { toast(e.message, true); }
+  };
+  sel.onchange = run;
+  view.replaceChildren(h('div', { style: 'max-width:320px;margin-bottom:12px' }, sel), out);
+  await run();
+}
+
+// ---------- log ----------
+async function viewLog() {
+  const list = await rpc('admin_log');
+  view.replaceChildren(h('div', { class: 'card' }, list.length ? h('div', { class: 'scroll' }, h('table', {},
+    h('thead', {}, h('tr', {}, ['When', 'Who', 'What', 'Note'].map((x) => h('th', {}, x)))),
+    h('tbody', {}, list.map((x) => h('tr', {}, h('td', {}, when(x.at)), h('td', {}, x.admin), h('td', {}, x.action.replace(/_/g, ' ')), h('td', { style: 'white-space:pre-wrap' }, x.note || '')))))) : h('div', { class: 'empty' }, 'Nothing logged yet.')));
+}
+
+// ---------- start ----------
+async function start() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) return showLogin();
+  try {
+    const { data: ok, error } = await sb.rpc('is_admin');
+    if (error || ok !== true) return logout('This login is not an admin.');
+  } catch (_) { return showLogin('Could not reach the server.'); }
+  resetIdle();
+  shell();
+  load();
+}
+start();
+</script>
+</body>
+</html>
