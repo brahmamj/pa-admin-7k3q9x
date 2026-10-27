@@ -196,16 +196,20 @@ function showLogin(msg) {
 }
 
 // ---------- shell ----------
-const TABS = [['overview', 'Overview'], ['review', 'Review'], ['reports', 'Reports'], ['users', 'Users'], ['waiting', 'Waiting list'], ['log', 'Log']];
+const TABS = [['overview', 'Overview'], ['review', 'Review'], ['reports', 'Reports'], ['spaces', 'Spaces'], ['bookings', 'Bookings'], ['users', 'Users'], ['waiting', 'Waiting list'], ['log', 'Log']];
 let tab = 'overview';
 let counts = { pending_spaces: 0, open_reports: 0 };
 let view;
+// what each list is showing. The tiles on the Overview set these.
+const pref = { spaces: 'live', bookings: 'accepted', users: 'recent' };
+
+function go(id, p) { tab = id; if (p) Object.assign(pref, p); shell(); load(); }
 
 function shell() {
   const nav = h('nav');
   for (const [id, name] of TABS) {
     const n = id === 'review' ? counts.pending_spaces : id === 'reports' ? counts.open_reports : 0;
-    nav.append(h('button', { class: id === tab ? 'on' : '', onclick: () => { tab = id; shell(); load(); } }, name, n > 0 ? h('span', { class: 'n' }, n) : null));
+    nav.append(h('button', { class: id === tab ? 'on' : '', onclick: () => go(id) }, name, n > 0 ? h('span', { class: 'n' }, n) : null));
   }
   view = h('main');
   app.replaceChildren(
@@ -216,27 +220,26 @@ function shell() {
 }
 
 async function refreshCounts() {
-  try {
-    const o = await rpc('admin_overview');
-    counts = o;
-    const nav = document.querySelector('nav');
-    if (nav) {
-      [...nav.children].forEach((b, i) => {
-        const id = TABS[i][0];
-        const n = id === 'review' ? o.pending_spaces : id === 'reports' ? o.open_reports : 0;
-        b.querySelector('.n')?.remove();
-        if (n > 0) b.append(h('span', { class: 'n' }, n));
-      });
-    }
-    return o;
-  } catch (e) { throw e; }
+  const o = await rpc('admin_overview');
+  counts = o;
+  const nav = document.querySelector('nav');
+  if (nav) {
+    [...nav.children].forEach((b, i) => {
+      const id = TABS[i][0];
+      const n = id === 'review' ? o.pending_spaces : id === 'reports' ? o.open_reports : 0;
+      b.querySelector('.n')?.remove();
+      if (n > 0) b.append(h('span', { class: 'n' }, n));
+    });
+  }
+  return o;
 }
 
 async function load() {
   view.replaceChildren(h('div', { class: 'empty' }, 'Loading…'));
   try {
     const o = await refreshCounts();
-    const fn = { overview: () => viewOverview(o), review: viewReview, reports: () => viewReports('open'), users: viewUsers, waiting: viewWaiting, log: viewLog }[tab];
+    const fn = { overview: () => viewOverview(o), review: viewReview, reports: () => viewReports('open', 0), spaces: () => viewSpaces(0),
+                 bookings: () => viewBookings(0), users: viewUsers, waiting: () => viewWaiting(0), log: () => viewLog(0) }[tab];
     await fn();
   } catch (e) {
     if (e.message === 'Not allowed' || e.message === 'Logged out') return;
@@ -246,15 +249,38 @@ async function load() {
 
 const dl = (rows) => h('dl', { class: 'kv' }, rows.filter((r) => r[1] != null && r[1] !== '' && r[1] !== false).map(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]));
 const person = (p) => p ? [p.name || '(no name)', ' · ', p.phone || 'no phone', p.status === 'blocked' ? [' ', h('span', { class: 'chip bad' }, 'blocked')] : null] : 'none';
+const fail = (e) => { if (e.message !== 'Not allowed' && e.message !== 'Logged out') toast(e.message, true); };
+
+// A row of filter buttons. Picking one calls onpick(value).
+function filters(options, current, onpick) {
+  return h('div', { class: 'row', style: 'margin-bottom:12px' }, options.map(([v, label]) =>
+    h('button', { class: 'btn' + (v === current ? ' primary' : ''), onclick: () => onpick(v) }, label)));
+}
+
+// "26–50 of 80" with Previous / Next. r = { total, offset, page_size, rows }.
+function pager(r, goto) {
+  const from = r.rows.length ? r.offset + 1 : 0, to = r.offset + r.rows.length;
+  return h('div', { class: 'row pager', style: 'justify-content:space-between;margin:6px 0 20px' },
+    h('span', { class: 'mute' }, r.total ? `${from}–${to} of ${r.total}` : '0 results'),
+    r.total > r.page_size ? h('div', { class: 'row' },
+      h('button', { class: 'btn', disabled: r.offset <= 0, onclick: () => goto(Math.max(0, r.offset - r.page_size)) }, '‹ Previous'),
+      h('button', { class: 'btn', disabled: r.offset + r.page_size >= r.total, onclick: () => goto(r.offset + r.page_size) }, 'Next ›')) : null);
+}
+// Page is empty because the last item of the last page was just handled: step back one page.
+const stepBack = (r, goto) => (!r.rows.length && r.offset > 0) ? (goto(Math.max(0, r.offset - r.page_size)), true) : false;
 
 // ---------- overview ----------
 function viewOverview(o) {
-  const tile = (n, label, to) => h('div', { class: 'tile', style: to ? 'cursor:pointer' : '', onclick: to ? () => { tab = to; shell(); load(); } : null }, h('b', {}, n == null ? '–' : n), h('span', {}, label));
+  const tile = (n, label, to, p) => h('div', { class: 'tile', role: to ? 'button' : null, tabindex: to ? 0 : null, style: to ? 'cursor:pointer' : '',
+    onclick: to ? () => go(to, p) : null, onkeydown: to ? (e) => { if (e.key === 'Enter') go(to, p); } : null },
+    h('b', {}, n == null ? '–' : n), h('span', {}, label, to ? ' ›' : ''));
   view.replaceChildren(
     h('div', { class: 'grid' },
       tile(o.pending_spaces, 'Spaces to review', 'review'), tile(o.open_reports, 'Open reports', 'reports'),
-      tile(o.live_spaces, 'Live spaces'), tile(o.users, 'Users'), tile(o.blocked_users, 'Blocked users'),
-      tile(o.open_requests, 'Open requests'), tile(o.accepted_bookings, 'Accepted bookings'),
+      tile(o.live_spaces, 'Live spaces', 'spaces', { spaces: 'live' }), tile(o.users, 'Users', 'users', { users: 'recent' }),
+      tile(o.blocked_users, 'Blocked users', 'users', { users: 'blocked' }),
+      tile(o.open_requests, 'Open requests', 'bookings', { bookings: 'requested' }),
+      tile(o.accepted_bookings, 'Accepted bookings', 'bookings', { bookings: 'accepted' }),
       tile(o.accept_rate_pct == null ? null : o.accept_rate_pct + '%', 'Accept rate'),
       tile(o.avg_reply_hours == null ? null : o.avg_reply_hours + ' h', 'Average reply time'), tile(o.waiting, 'People waiting', 'waiting')),
     h('div', { class: 'card', style: 'margin-top:14px' }, h('h2', {}, 'Waiting list by area'),
@@ -262,7 +288,7 @@ function viewOverview(o) {
         h('tbody', {}, o.waitlist_by_area.map((a) => h('tr', {}, h('td', {}, a.area), h('td', {}, a.waiting), h('td', {}, a.cab), h('td', {}, a.night_only)))))) : h('div', { class: 'mute' }, 'Nobody is waiting.')));
 }
 
-// ---------- review ----------
+// ---------- spaces: details (used by the review queue and the Spaces list) ----------
 const PHOTO_OK = /^[0-9a-f-]{36}\/[A-Za-z0-9._-]+$/;
 const photoUrl = (p) => SUPABASE_URL + '/storage/v1/object/public/space-photos/' + p.split('/').map(encodeURIComponent).join('/');
 function mapLink(loc) {
@@ -274,17 +300,33 @@ function offerText(o) {
   const prices = [o.price_day != null ? money(o.price_day) + '/day' : null, o.price_week != null ? money(o.price_week) + '/week' : null, o.price_month != null ? money(o.price_month) + '/month' : null].filter(Boolean).join(', ');
   return [VEHICLES[o.vehicle_type] || o.vehicle_type, o.max_car_size ? (o.max_car_size === 'suv_muv' ? ' (SUV ok)' : ' (hatch/sedan)') : '', o.covered ? ', covered' : ', open', ` · ${o.slot_count} slot${o.slot_count > 1 ? 's' : ''} · `, prices, o.active ? '' : ' · OFF'].join('');
 }
+const statusChip = (st) => h('span', { class: 'chip' + (st === 'live' ? ' good' : st === 'rejected' || st === 'closed' ? ' bad' : '') }, (st || '').replace('_', ' '));
 
+function spaceDetail(s) {
+  const flags = [s.gated && 'Gated', s.cctv && 'CCTV', s.guard && 'Guard', s.lights && 'Lights', s.access_24x7 ? '24x7 access' : (s.access_from ? `Access ${s.access_from.slice(0, 5)}–${s.access_to.slice(0, 5)}` : null)].filter(Boolean);
+  const valid = (s.photos || []).filter((p) => PHOTO_OK.test(p));
+  return h('div', {},
+    dl([['Area', [s.area, s.locality && s.area !== s.locality ? ' · ' + s.locality : '']], ['Address', [s.address, s.pincode ? ' – ' + s.pincode : '']], ['Landmark', s.landmark],
+        ['Map', mapLink(s.location)], ['Type', KINDS[s.space_kind] || s.space_kind], ['Features', flags.join(', ')], ['Description', s.description],
+        ['Owner', s.owner ? person(s.owner) : 'Listed by you (no owner account)'], ['Owner live spaces', s.owner ? s.owner.live_spaces : null],
+        ['Renters will call', [s.contact_name, s.contact_phone ? ' · ' + s.contact_phone : '']],
+        ['Permission ticked', s.permission_confirmed_at ? when(s.permission_confirmed_at) : h('span', { class: 'chip bad' }, 'No')],
+        ['Last rejection note', s.review_note]]),
+    h('b', {}, 'Photos (' + valid.length + ')'),
+    h('div', { class: 'photos' }, valid.map((p) => h('a', { href: photoUrl(p), target: '_blank', rel: 'noopener noreferrer' }, h('img', { src: photoUrl(p), alt: 'Space photo', loading: 'lazy' })))),
+    h('b', {}, 'Offers'), h('ul', {}, (s.offers || []).map((o) => h('li', {}, offerText(o)))),
+    h('b', {}, 'Your checks'),
+    (s.reviews || []).length ? h('ul', {}, s.reviews.map((r) => h('li', {}, `${when(r.at)} · ${r.method}: ${r.notes || ''}`))) : h('div', { class: 'mute' }, 'None yet.'));
+}
+
+// ---------- review queue ----------
 async function viewReview() {
   const list = await rpc('admin_pending_spaces');
   if (!list.length) return view.replaceChildren(h('div', { class: 'empty' }, 'Nothing to review.'));
-  view.replaceChildren(...list.map(reviewCard));
+  view.replaceChildren(...(counts.pending_spaces > list.length ? [h('div', { class: 'mute', style: 'margin-bottom:10px' }, `Showing the oldest ${list.length} of ${counts.pending_spaces}. The next ones appear as you finish these.`)] : []), ...list.map(reviewCard));
 }
 
 function reviewCard(s) {
-  const flags = [s.gated && 'Gated', s.cctv && 'CCTV', s.guard && 'Guard', s.lights && 'Lights', s.access_24x7 ? '24x7 access' : (s.access_from ? `Access ${s.access_from.slice(0, 5)}–${s.access_to.slice(0, 5)}` : null)].filter(Boolean);
-  const photos = h('div', { class: 'photos' }, (s.photos || []).filter((p) => PHOTO_OK.test(p)).map((p) =>
-    h('a', { href: photoUrl(p), target: '_blank', rel: 'noopener noreferrer' }, h('img', { src: photoUrl(p), alt: 'Space photo', loading: 'lazy' }))));
   const reviewed = (s.reviews || []).length > 0;
   const logBtn = h('button', { class: 'btn' }, 'Log call / visit');
   const approve = h('button', { class: 'btn primary', disabled: !reviewed, title: reviewed ? '' : 'Log your call or visit first' }, 'Approve');
@@ -302,32 +344,65 @@ function reviewCard(s) {
     const r = await ask({ title: 'Reject this space', label: 'Reason the owner will read (min 5 characters)', min: 5, ok: 'Reject', danger: true, hint: 'Say what to fix. The owner sees this text.' });
     if (r) act(reject, () => rpc('admin_reject_space', { p_space: s.id, p_note: r.note }), 'Rejected. The owner has been told.', reload);
   };
+  return h('div', { class: 'card' }, h('h2', {}, s.title), h('div', { class: 'mute' }, 'Sent ', when(s.created_at)),
+    spaceDetail(s), h('div', { class: 'sep' }), h('div', { class: 'row' }, logBtn, approve, reject));
+}
+
+// ---------- spaces list ----------
+async function viewSpaces(offset) {
+  const status = pref.spaces;
+  const r = await rpc('admin_spaces', { p_status: status, p_offset: offset });
+  if (stepBack(r, viewSpaces)) return;
+  const bar = filters([['live', 'Live'], ['paused', 'Paused'], ['closed', 'Closed'], ['rejected', 'Rejected'], ['draft', 'Draft'], ['pending_review', 'In review'], ['all', 'All']], status,
+    (v) => { pref.spaces = v; viewSpaces(0).catch(fail); });
+  view.replaceChildren(bar, ...(r.rows.length ? r.rows.map(spaceRow) : [h('div', { class: 'empty' }, 'No spaces here.')]), pager(r, (o) => viewSpaces(o).catch(fail)));
+}
+
+function spaceRow(s) {
+  const body = h('div', { hidden: true });
+  const btn = h('button', { class: 'btn' }, 'Details');
+  btn.onclick = () => {
+    if (body.hidden) { if (!body.firstChild) body.append(spaceDetail(s)); body.hidden = false; btn.textContent = 'Hide details'; }
+    else { body.hidden = true; btn.textContent = 'Details'; }
+  };
+  const prices = (s.offers || []).filter((o) => o.active).map(offerText);
   return h('div', { class: 'card' },
-    h('h2', {}, s.title), h('div', { class: 'mute' }, 'Sent ', when(s.created_at)),
-    dl([['Area', [s.area, s.locality && s.area !== s.locality ? ' · ' + s.locality : '']], ['Address', [s.address, s.pincode ? ' – ' + s.pincode : '']], ['Landmark', s.landmark],
-        ['Map', mapLink(s.location)], ['Type', KINDS[s.space_kind] || s.space_kind], ['Features', flags.join(', ')], ['Description', s.description],
-        ['Owner', person(s.owner)], ['Owner live spaces', s.owner ? s.owner.live_spaces : null],
-        ['Renters will call', [s.contact_name, s.contact_phone ? ' · ' + s.contact_phone : '']],
-        ['Permission ticked', s.permission_confirmed_at ? when(s.permission_confirmed_at) : h('span', { class: 'chip bad' }, 'No')],
-        ['Last rejection note', s.review_note]]),
-    h('b', {}, 'Photos (' + (s.photos || []).filter((p) => PHOTO_OK.test(p)).length + ')'), photos,
-    h('b', {}, 'Offers'), h('ul', {}, (s.offers || []).map((o) => h('li', {}, offerText(o)))),
-    h('b', {}, 'Your checks'),
-    (s.reviews || []).length ? h('ul', {}, s.reviews.map((r) => h('li', {}, `${when(r.at)} · ${r.method}: ${r.notes || ''}`))) : h('div', { class: 'mute' }, 'None yet. Call the owner or visit, then log it here.'),
-    h('div', { class: 'sep' }), h('div', { class: 'row' }, logBtn, approve, reject));
+    h('div', { class: 'row' }, h('h2', { style: 'margin:0' }, s.title), statusChip(s.status)),
+    h('div', { class: 'mute', style: 'margin:4px 0' }, [s.area, s.locality].filter(Boolean).join(' · '), ' · ', s.owner ? (s.owner.name || s.owner.phone) : 'Listed by you', s.owner && s.owner.status === 'blocked' ? ' (blocked)' : ''),
+    h('div', {}, `${s.accepted_bookings} accepted booking${s.accepted_bookings === 1 ? '' : 's'} · ${s.open_requests} open request${s.open_requests === 1 ? '' : 's'} · created ${when(s.created_at)}`),
+    prices.length ? h('ul', { style: 'margin:6px 0' }, prices.map((p) => h('li', {}, p))) : null,
+    h('div', { style: 'margin-top:8px' }, btn), body);
+}
+
+// ---------- bookings list ----------
+async function viewBookings(offset) {
+  const status = pref.bookings;
+  const r = await rpc('admin_bookings', { p_status: status, p_offset: offset });
+  if (stepBack(r, viewBookings)) return;
+  const bar = filters([['accepted', 'Accepted'], ['requested', 'Open requests'], ['cancelled', 'Cancelled'], ['rejected', 'Declined'], ['expired', 'Expired'], ['ended', 'Ended'], ['all', 'All']], status,
+    (v) => { pref.bookings = v; viewBookings(0).catch(fail); });
+  view.replaceChildren(bar, ...(r.rows.length ? r.rows.map(bookingRow) : [h('div', { class: 'empty' }, 'No bookings here.')]), pager(r, (o) => viewBookings(o).catch(fail)));
+}
+
+function bookingRow(b) {
+  return h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h2', { style: 'margin:0' }, b.space.title), statusChip(b.status), h('span', { class: 'mute' }, b.space.area || '')),
+    dl([['Dates', [day(b.start_date), ' to ', day(b.end_date), ' · ', b.duration_type]], ['Price', money(b.quoted_price)], ['Vehicle', VEHICLES[b.vehicle_type] || b.vehicle_type],
+        ['Renter', person(b.renter)], ['Owner', b.owner ? person(b.owner) : 'Listed by you (no owner account)'],
+        ['Requested', when(b.requested_at)], ['Answered', b.responded_at ? when(b.responded_at) : null],
+        ['Cancelled', b.cancelled_by ? `by ${b.cancelled_by}${b.cancel_reason ? ': ' + b.cancel_reason : ''}` : (b.cancel_reason || null)]]));
 }
 
 // ---------- reports ----------
-async function viewReports(status) {
-  const list = await rpc('admin_reports', { p_status: status });
-  const sw = h('div', { class: 'row', style: 'margin-bottom:12px' },
-    h('button', { class: 'btn' + (status === 'open' ? ' primary' : ''), onclick: () => viewReports('open').catch((e) => toast(e.message, true)) }, 'Open'),
-    h('button', { class: 'btn' + (status === 'resolved' ? ' primary' : ''), onclick: () => viewReports('resolved').catch((e) => toast(e.message, true)) }, 'Resolved (last 100)'));
-  view.replaceChildren(sw, ...(list.length ? list.map((r) => reportCard(r, status)) : [h('div', { class: 'empty' }, status === 'open' ? 'No open reports.' : 'Nothing resolved yet.')]));
+async function viewReports(status, offset) {
+  const r = await rpc('admin_reports', { p_status: status, p_offset: offset });
+  if (stepBack(r, (o) => viewReports(status, o))) return;
+  const sw = filters([['open', 'Open'], ['resolved', 'Resolved']], status, (v) => viewReports(v, 0).catch(fail));
+  view.replaceChildren(sw, ...(r.rows.length ? r.rows.map((x) => reportCard(x, status, offset)) : [h('div', { class: 'empty' }, status === 'open' ? 'No open reports.' : 'Nothing resolved yet.')]), pager(r, (o) => viewReports(status, o).catch(fail)));
 }
 
-function reportCard(r, status) {
-  const reload = async () => { await refreshCounts(); await viewReports(status); };
+function reportCard(r, status, offset) {
+  const reload = async () => { await refreshCounts(); await viewReports(status, offset); };
   const resolve = h('button', { class: 'btn primary' }, 'Mark resolved…');
   resolve.onclick = async () => {
     const x = await ask({ title: 'Resolve this report', label: 'What did you do? (kept in your log; the reporter does not see it)', ok: 'Resolve' });
@@ -356,31 +431,45 @@ function blockButton(u, after) {
 
 // ---------- users ----------
 async function viewUsers() {
-  const q = h('input', { type: 'search', placeholder: 'Part of a name or phone number (3+ characters)' });
+  const q = h('input', { type: 'search', placeholder: 'Search part of a name or phone number (3+ characters)' });
   const out = h('div');
-  const run = async () => {
+  let searching = false;
+  const reloadAll = async () => { await refreshCounts(); await (searching ? runSearch() : showList(curOffset)); };
+  let curOffset = 0;
+  const showList = async (offset) => {
+    searching = false; curOffset = offset;
+    try {
+      const r = await rpc('admin_users', { p_filter: pref.users, p_offset: offset });
+      if (stepBack(r, showList)) return;
+      out.replaceChildren(
+        filters([['recent', 'Newest'], ['blocked', 'Blocked'], ['owners', 'Owners'], ['renters', 'Renters'], ['admins', 'Admins']], pref.users, (v) => { pref.users = v; showList(0); }),
+        ...(r.rows.length ? r.rows.map((u) => userCard(u, reloadAll)) : [h('div', { class: 'empty' }, 'No users here.')]), pager(r, showList));
+    } catch (e) { fail(e); }
+  };
+  const runSearch = async () => {
     const v = q.value.trim();
-    if (v.length < 3) return out.replaceChildren(h('div', { class: 'empty' }, 'Type at least 3 characters.'));
+    if (v.length < 3) return showList(0);
+    searching = true;
     try {
       const list = await rpc('admin_find_users', { p_q: v });
-      out.replaceChildren(...(list.length ? list.map((u) => userCard(u, run)) : [h('div', { class: 'empty' }, 'No one found.')]));
-    } catch (e) { toast(e.message, true); }
+      out.replaceChildren(h('div', { class: 'mute', style: 'margin-bottom:8px' }, list.length >= 20 ? 'Showing the first 20. Type more to narrow it down.' : list.length + ' found'),
+        ...(list.length ? list.map((u) => userCard(u, reloadAll)) : [h('div', { class: 'empty' }, 'No one found.')]));
+    } catch (e) { fail(e); }
   };
-  q.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
-  view.replaceChildren(h('div', { class: 'row', style: 'margin-bottom:12px' }, h('div', { style: 'flex:1;min-width:200px' }, q), h('button', { class: 'btn primary', onclick: run }, 'Search')), out);
-  q.focus();
+  q.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
+  view.replaceChildren(h('div', { class: 'row', style: 'margin-bottom:12px' }, h('div', { style: 'flex:1;min-width:200px' }, q), h('button', { class: 'btn primary', onclick: runSearch }, 'Search')), out);
+  await showList(0);
 }
 
 function userCard(u, after) {
-  const reload = async () => { await refreshCounts(); await after(); };
   let action = null;
   if (!u.is_admin) {
-    if (u.status === 'active') action = blockButton(u, reload);
+    if (u.status === 'active') action = blockButton(u, after);
     else {
       action = h('button', { class: 'btn primary' }, 'Unblock…');
       action.onclick = async () => {
         const x = await ask({ title: 'Unblock ' + (u.name || u.phone), label: 'Reason (kept in your log)', ok: 'Unblock' });
-        if (x) act(action, () => rpc('admin_set_user_status', { p_user: u.id, p_status: 'active', p_reason: x.note }), 'Unblocked', reload);
+        if (x) act(action, () => rpc('admin_set_user_status', { p_user: u.id, p_status: 'active', p_reason: x.note }), 'Unblocked', after);
       };
     }
   }
@@ -392,31 +481,29 @@ function userCard(u, after) {
 }
 
 // ---------- waiting list ----------
-async function viewWaiting() {
-  const o = counts;
-  const sel = h('select', {}, h('option', { value: '' }, 'All areas'), (o.waitlist_by_area || []).filter((a) => a.area_id).map((a) => h('option', { value: a.area_id }, `${a.area} (${a.waiting})`)));
-  const out = h('div');
-  const run = async () => {
-    try {
-      const list = await rpc('admin_waitlist', { p_area: sel.value || null });
-      out.replaceChildren(...(list.length ? list.map((w) => h('div', { class: 'card' },
-        h('div', { class: 'row' }, h('b', {}, w.name || '(no name)'), h('span', { class: 'mute' }, w.phone || '')),
-        dl([['Area', [w.area, w.locality ? ' · ' + w.locality : '']], ['Vehicle', [VEHICLES[w.vehicle_type] || w.vehicle_type, w.use_type ? ' · ' + w.use_type : '']],
-            ['Wants', [w.covered_pref ? 'covered: ' + w.covered_pref : '', w.parking_time ? ' · time: ' + w.parking_time : '']],
-            ['Budget / month', w.budget_month ? money(w.budget_month) : null], ['Needed from', w.need_from ? day(w.need_from) : null], ['Note', w.note]]))) : [h('div', { class: 'empty' }, 'Nobody waiting here.')]));
-    } catch (e) { toast(e.message, true); }
-  };
-  sel.onchange = run;
-  view.replaceChildren(h('div', { style: 'max-width:320px;margin-bottom:12px' }, sel), out);
-  await run();
+let waitArea = '';
+async function viewWaiting(offset) {
+  const r = await rpc('admin_waitlist', { p_area: waitArea || null, p_offset: offset });
+  if (stepBack(r, viewWaiting)) return;
+  const sel = h('select', {}, h('option', { value: '' }, 'All areas'), (counts.waitlist_by_area || []).filter((a) => a.area_id).map((a) => h('option', { value: a.area_id, selected: a.area_id === waitArea }, `${a.area} (${a.waiting})`)));
+  sel.onchange = () => { waitArea = sel.value; viewWaiting(0).catch(fail); };
+  view.replaceChildren(h('div', { style: 'max-width:320px;margin-bottom:12px' }, sel),
+    ...(r.rows.length ? r.rows.map((w) => h('div', { class: 'card' },
+      h('div', { class: 'row' }, h('b', {}, w.name || '(no name)'), h('span', { class: 'mute' }, w.phone || '')),
+      dl([['Area', [w.area, w.locality ? ' · ' + w.locality : '']], ['Vehicle', [VEHICLES[w.vehicle_type] || w.vehicle_type, w.use_type ? ' · ' + w.use_type : '']],
+          ['Wants', [w.covered_pref ? 'covered: ' + w.covered_pref : '', w.parking_time ? ' · time: ' + w.parking_time : '']],
+          ['Budget / month', w.budget_month ? money(w.budget_month) : null], ['Needed from', w.need_from ? day(w.need_from) : null], ['Note', w.note]]))) : [h('div', { class: 'empty' }, 'Nobody waiting here.')]),
+    pager(r, (o) => viewWaiting(o).catch(fail)));
 }
 
 // ---------- log ----------
-async function viewLog() {
-  const list = await rpc('admin_log');
-  view.replaceChildren(h('div', { class: 'card' }, list.length ? h('div', { class: 'scroll' }, h('table', {},
+async function viewLog(offset) {
+  const r = await rpc('admin_log', { p_offset: offset });
+  if (stepBack(r, viewLog)) return;
+  view.replaceChildren(h('div', { class: 'card' }, r.rows.length ? h('div', { class: 'scroll' }, h('table', {},
     h('thead', {}, h('tr', {}, ['When', 'Who', 'What', 'Note'].map((x) => h('th', {}, x)))),
-    h('tbody', {}, list.map((x) => h('tr', {}, h('td', {}, when(x.at)), h('td', {}, x.admin), h('td', {}, x.action.replace(/_/g, ' ')), h('td', { style: 'white-space:pre-wrap' }, x.note || '')))))) : h('div', { class: 'empty' }, 'Nothing logged yet.')));
+    h('tbody', {}, r.rows.map((x) => h('tr', {}, h('td', {}, when(x.at)), h('td', {}, x.admin), h('td', {}, x.action.replace(/_/g, ' ')), h('td', { style: 'white-space:pre-wrap' }, x.note || '')))))) : h('div', { class: 'empty' }, 'Nothing logged yet.')),
+    pager(r, (o) => viewLog(o).catch(fail)));
 }
 
 // ---------- start ----------
