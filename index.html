@@ -457,7 +457,7 @@ async function viewUsers() {
       const r = await rpc('admin_users', { p_filter: pref.users, p_offset: offset });
       if (stepBack(r, showList)) return;
       out.replaceChildren(
-        filters([['recent', 'Newest'], ['blocked', 'Blocked'], ['owners', 'Owners'], ['renters', 'Renters'], ['admins', 'Admins']], pref.users, (v) => { pref.users = v; showList(0); }),
+        filters([['recent', 'Newest'], ['today', 'Seen today'], ['quiet', 'Quiet 3+ days'], ['blocked', 'Blocked'], ['owners', 'Owners'], ['renters', 'Renters'], ['admins', 'Admins']], pref.users, (v) => { pref.users = v; showList(0); }),
         ...(r.rows.length ? r.rows.map((u) => userCard(u, reloadAll)) : [h('div', { class: 'empty' }, 'No users here.')]), pager(r, showList));
     } catch (e) { fail(e); }
   };
@@ -490,8 +490,8 @@ function userCard(u, after) {
   }
   return h('div', { class: 'card' },
     h('div', { class: 'row' }, h('h2', { style: 'margin:0' }, u.name || '(no name)'), u.status === 'blocked' ? h('span', { class: 'chip bad' }, 'blocked') : h('span', { class: 'chip good' }, 'active'), u.is_admin ? h('span', { class: 'chip' }, 'admin') : null),
-    dl([['Phone', u.phone], ['Joined', when(u.created_at)], ['Roles', [u.is_renter ? 'Renter ' : '', u.is_owner ? 'Owner' : '']],
-        ['Spaces', `${u.spaces} (${u.live_spaces} live)`], ['Bookings as renter', u.bookings_as_renter], ['Reports made', u.reports_made]]),
+    dl([['Phone', u.phone], ['Joined', when(u.created_at)], ['Last seen', u.last_seen_at ? when(u.last_seen_at) : 'never'], ['App version', u.app_version], ['Roles', [u.is_renter ? 'Renter ' : '', u.is_owner ? 'Owner' : '']],
+        ['Spaces', `${u.spaces} (${u.live_spaces} live)`], ['Bookings as renter', u.bookings_as_renter], ['Waiting list', u.waitlist_entries], ['Reports made', u.reports_made]]),
     action);
 }
 
