@@ -448,6 +448,7 @@ function blockButton(u, after) {
 async function viewUsers() {
   const q = h('input', { type: 'search', placeholder: 'Search part of a name or phone number (3+ characters)' });
   const out = h('div');
+  const summary = h('div');
   let searching = false;
   const reloadAll = async () => { await refreshCounts(); await (searching ? runSearch() : showList(curOffset)); };
   let curOffset = 0;
@@ -457,7 +458,8 @@ async function viewUsers() {
       const r = await rpc('admin_users', { p_filter: pref.users, p_offset: offset });
       if (stepBack(r, showList)) return;
       out.replaceChildren(
-        filters([['recent', 'Newest'], ['today', 'Seen today'], ['quiet', 'Quiet 3+ days'], ['blocked', 'Blocked'], ['owners', 'Owners'], ['renters', 'Renters'], ['admins', 'Admins']], pref.users, (v) => { pref.users = v; showList(0); }),
+        filters([['recent', 'Newest'], ['today', 'Seen today'], ['active7', 'Active (7 days)'], ['quiet30', 'Quiet 7-30 days'], ['gone30', 'Gone 30+ days'], ['quiet', 'Quiet 3+ days'], ['blocked', 'Blocked'], ['owners', 'Owners'], ['renters', 'Renters'], ['admins', 'Admins']], pref.users, (v) => { pref.users = v; showList(0); }),
+        pref.users.startsWith('ver:') ? h('div', { class: 'mute', style: 'margin-bottom:8px' }, 'App version ' + pref.users.slice(4)) : null,
         ...(r.rows.length ? r.rows.map((u) => userCard(u, reloadAll)) : [h('div', { class: 'empty' }, 'No users here.')]), pager(r, showList));
     } catch (e) { fail(e); }
   };
@@ -472,8 +474,22 @@ async function viewUsers() {
     } catch (e) { fail(e); }
   };
   q.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
-  view.replaceChildren(h('div', { class: 'row', style: 'margin-bottom:12px' }, h('div', { style: 'flex:1;min-width:200px' }, q), h('button', { class: 'btn primary', onclick: runSearch }, 'Search')), out);
+  view.replaceChildren(summary, h('div', { class: 'row', style: 'margin-bottom:12px' }, h('div', { style: 'flex:1;min-width:200px' }, q), h('button', { class: 'btn primary', onclick: runSearch }, 'Search')), out);
   await showList(0);
+  // Groups. If the SQL has not been run yet, this card is simply left out.
+  try {
+    const g = await rpc('admin_user_summary');
+    const pick = (v) => { pref.users = v; q.value = ''; showList(0); };
+    summary.replaceChildren(h('div', { class: 'card', style: 'margin-bottom:12px' },
+      h('h2', {}, 'Groups'),
+      h('div', { class: 'mute' }, 'By app version (tap one to list those users)'),
+      h('div', { class: 'row', style: 'margin:6px 0 12px' }, g.versions.map((x) => h('button', { class: 'btn', onclick: () => pick('ver:' + x.version) }, `${x.version}: ${x.users}`))),
+      h('div', { class: 'mute' }, 'By activity'),
+      h('div', { class: 'row', style: 'margin:6px 0 12px' }, [['active7', 'Active (7 days)', g.active7], ['quiet30', 'Quiet 7-30 days', g.quiet30], ['gone30', 'Gone 30+ days', g.gone30]].map(([v, label, n]) => h('button', { class: 'btn', onclick: () => pick(v) }, `${label}: ${n}`))),
+      h('div', { class: 'mute' }, 'By area (spaces and waiting list)'),
+      g.areas.length ? h('div', { class: 'scroll' }, h('table', {}, h('thead', {}, h('tr', {}, ['Area', 'Spaces', 'Live', 'Owners', 'Waiting'].map((x) => h('th', {}, x)))),
+        h('tbody', {}, g.areas.map((a) => h('tr', {}, h('td', {}, a.area), h('td', {}, a.spaces), h('td', {}, a.live), h('td', {}, a.owners), h('td', {}, a.waiting)))))) : h('div', { class: 'mute' }, 'No spaces or waiting entries yet.')));
+  } catch (_) { /* older database: no groups yet */ }
 }
 
 function userCard(u, after) {
